@@ -146,6 +146,7 @@ func unmarshalConfig(href string) {
 */
 func parseConfig(config *Config) {
   text("Starting actions execution", color.FgYellow)
+  removeGitDirectory()
 
   for i := 0; i < len(config.Actions); i++ {
     action := config.Actions[i]
@@ -187,6 +188,11 @@ func executeCommand(command string, args ...string) {
   if out.String() != "" && false {
     text(out.String(), color.FgGreen)
   }
+}
+
+func removeGitDirectory() {
+  text("Removing existing .git folder", color.FgGreen)
+  executeCommand("rm", "-rf", ".git")
 }
 
 /*
