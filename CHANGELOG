@@ -1,0 +1,4 @@
+0.0.1
+  - Clones a valid git repository
+  - Unmarshal the config file
+  - Loops through and executes the list of defined actions
