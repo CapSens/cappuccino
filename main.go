@@ -16,11 +16,19 @@ import (
 
 const VERSION = "0.0.1"
 
+/*
+  GitOptions
+  Structure handeling command line options related to Git url and branch.
+*/
 type GitOptions struct {
 	GitUrl string `short:"g" long:"git" description:"Git repository to clone"`
 	Branch string `short:"b" long:"branch" description:"Branch to work with" default:"master"`
 }
 
+/*
+  Options
+  Structure handeling command line options related to debug and version.
+*/
 type Options struct {
 	Git     GitOptions
 	Debug   bool `short:"d" long:"debug" description:"Run in debug mode"`
@@ -45,24 +53,32 @@ type Config struct {
 */
 type Action struct {
 	Name    string
+	Type    string
 	Content []ActionContent
 }
 
 /*
   ActionContent
   Structure mirroring the format of a valid command if a config file.
-  Consists of a type and a string command.
+  Consists of a type, path, command, source, destination, variable,
+	path and a value.
 */
 type ActionContent struct {
 	Type        string
-	Path        string
 	Command     string
 	Source      string
 	Destination string
-	Arguments   ActionCommandArgument
+	Variable    string
+	Path        string
+	Value       string
 }
 
-type ActionCommandArgument struct {
+/*
+  ActionContentArgument
+  Structure mirroring the format of a valid action command in the config file
+	Consists of a variable, path and value.
+*/
+type ActionContentArgument struct {
 	Variable string
 	Path     string
 	Value    string
@@ -169,12 +185,25 @@ func processAction(action *Action) {
 	text(action.Name, color.FgGreen)
 
 	for j := 0; j < len(action.Content); j++ {
-		processContent(&action.Content[j])
+		processContent(action, &action.Content[j])
 	}
 }
 
-func processContent(content *ActionContent) {
-	if content.Type == "exec" {
+/*
+  processContent
+  Takes an ActionContent as a parameter and handles the execution
+	of action depending of it's type.
+*/
+func processContent(action *Action, content *ActionContent) {
+	var contentType string
+
+	if content.Type == "" {
+		contentType = action.Type
+	} else {
+		contentType = content.Type
+	}
+
+	if contentType == "exec" {
 		command := content.Command
 		coloredContent := fmt.Sprintf("\t-> %s", command)
 		text(coloredContent, color.FgGreen)
@@ -183,10 +212,10 @@ func processContent(content *ActionContent) {
 		executeCommand(executableCommand[0], executableCommand[1:]...)
 	}
 
-	if content.Type == "replace" {
-		variable := content.Arguments.Variable
-		value := content.Arguments.Value
-		path := content.Arguments.Path
+	if contentType == "replace" {
+		variable := content.Variable
+		value := content.Value
+		path := content.Path
 
 		read, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -207,7 +236,7 @@ func processContent(content *ActionContent) {
 		text(coloredContent, color.FgGreen)
 	}
 
-	if content.Type == "copy" {
+	if contentType == "copy" {
 		source := content.Source
 		destination := content.Destination
 
@@ -218,7 +247,7 @@ func processContent(content *ActionContent) {
 		executeCommand("cp", source, destination)
 	}
 
-	if content.Type == "move" {
+	if contentType == "move" {
 		source := content.Source
 		destination := content.Destination
 
@@ -229,7 +258,7 @@ func processContent(content *ActionContent) {
 		executeCommand("mv", source, destination)
 	}
 
-	if content.Type == "delete" {
+	if contentType == "delete" {
 		path := content.Path
 
 		coloredSource := colored(path, color.FgRed)
@@ -265,6 +294,10 @@ func executeCommand(command string, args ...string) {
 	}
 }
 
+/*
+  removeGitDirectory
+  Removes the `.git` directory after clone, by default.
+*/
 func removeGitDirectory() {
 	text("Removing existing .git folder", color.FgGreen)
 	executeCommand("rm", "-rf", ".git")
@@ -303,6 +336,10 @@ func text(content string, attribute color.Attribute) {
 	fmt.Printf("%s %s\n", colored(prefix(), attribute), content)
 }
 
+/*
+  colored
+  Displays a message on the screen using a particular color
+*/
 func colored(text string, attribute color.Attribute) string {
 	return color.New(attribute).SprintFunc()(text)
 }
