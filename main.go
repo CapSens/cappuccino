@@ -232,7 +232,7 @@ func processContent(content *ActionContent) {
 	if content.Type == "delete" {
 		path := content.Path
 
-		coloredSource := colored(path, color.FgMagenta)
+		coloredSource := colored(path, color.FgRed)
 		coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
 		text(coloredContent, color.FgGreen)
 
