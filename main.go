@@ -205,33 +205,17 @@ func processContent(action *Action, content *ActionContent) {
 		executableCommand := strings.Split(command, " ")
 		executeCommand(executableCommand[0], executableCommand[1:]...)
 
-	case "replace":
+	case "replace", "substitute":
 		path := content.Path
 		value := strings.TrimSpace(content.Value)
 		indent := content.Indent
-		variable := content.Text
 
-		var shownPath string
-		if content.Path != "" {
-			shownPath = content.Path
+		var variable string
+		if contentType == "replace" {
+			variable = content.Text
 		} else {
-			shownPath = "all files"
+			variable = fmt.Sprintf("[cappuccino-var-%s]", content.Variable)
 		}
-
-		coloredName := colored(variable, color.FgCyan)
-		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, shownPath)
-		text(coloredContent, color.FgGreen)
-
-		if err := substituteFile(&path, &variable, &value, &indent); err != nil {
-			text(err.Error(), color.FgRed)
-			os.Exit(0)
-		}
-
-	case "substitute":
-		path := content.Path
-		value := strings.TrimSpace(content.Value)
-		indent := content.Indent
-		variable := fmt.Sprintf("[cappuccino-var-%s]", content.Variable)
 
 		var shownPath string
 		if content.Path != "" {
