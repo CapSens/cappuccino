@@ -8,7 +8,16 @@ Robots should do the hard work, that's why a config file can contain from few to
 sudo curl -sSo /usr/bin/cappuccino https://raw.githubusercontent.com/CapSens/cappuccino/master/cappuccino && sudo chmod 777 /usr/bin/cappuccino
 ```
 
-### Example of config file
+### Example of use
+Let's say we need to clone a Ruby on Rails git repository and apply the following changes :
+- Rename the database.yml.example file into database.yml.
+- Delete Procfile and bower.json files.
+- Substitute user defined variables in both .ruby-version and .ruby-gemset files.
+- Create the gemset using RVM.
+- Bundle install, create, migrate and seed the database.
+
+Here is what the config file would look like :
+
 ```yaml
 engine: cappuccino
 actions:
@@ -22,12 +31,29 @@ actions:
     content:
       - path: Procfile
       - path: bower.json
+  - name: Replacing variables with their respective content
+    type: substitute
+    content:
+      - variable: gemset
+        path: .ruby-gemset
+        value: app_dev
+      - variable: version
+        path: .ruby-version
+        value: ruby-2.2.4
+  - name: Running bundle & using current gemset
+    type: exec
+    content:
+      - command: rvm use .
+      - command: gem install bundler
+      - command: bundle
   - name: Setting up database, migrations and seeds
     type: exec
     content:
       - command: bundle exec rake db:create db:migrate
       - command: bundle exec rake db:seed
 ```
+
+If an action is a `substitution` and the variable name is `gemset`, cappuccino will search and find `[cappuccino-var-gemset]` in the repository and substitute it with related value.
 
 ### Currently available action types:
 * _exec_, executes the given command with full list of arguments.
