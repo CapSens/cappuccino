@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
 	"github.com/fatih/color"
 	"github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
@@ -218,11 +219,18 @@ func processContent(action *Action, content *ActionContent) {
 		value := content.Value
 		path := content.Path
 
+		var shownPath string
+		if content.Path != "" {
+			shownPath = content.Path
+		} else {
+			shownPath = "all files"
+		}
+
 		coloredName := colored(variable, color.FgCyan)
-		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, path)
+		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, shownPath)
 		text(coloredContent, color.FgGreen)
 
-		if err := replaceInFile(&path, &variable, &value); err != nil {
+		if err := replaceFile(&path, &variable, &value); err != nil {
 			text(err.Error(), color.FgRed)
 			os.Exit(0)
 		}
@@ -363,6 +371,21 @@ func moveFile(source, destination string) (err error) {
 }
 
 /*
+	replaceFile
+	Dispatches the path information to either replaceInFile
+	Or replaceInPath depending of if a path is given or not
+*/
+func replaceFile(path, variable, value *string) (err error) {
+	if *path != "" {
+		return replaceInFile(path, variable, value)
+	} else {
+		return replaceInPath(variable, value)
+	}
+
+	return err
+}
+
+/*
 	replaceInFile
 	Replaces a content in a file using standard library
 */
@@ -376,6 +399,26 @@ func replaceInFile(path, variable, value *string) (err error) {
 	newBytes := strings.Replace(string(read), varName, *value, -1)
 
 	return ioutil.WriteFile(*path, []byte(newBytes), 0)
+}
+
+/*
+	replaceInPath
+	Replaces a content if found in all files in the current directory
+	This is recursive and can take a while for very large directories
+*/
+func replaceInPath(variable, value *string) (err error) {
+	err = filepath.Walk(".", func(filePath string, f os.FileInfo, err error) error {
+		if !f.IsDir() {
+			// text(fmt.Sprintf("\t-> Visiting: %s", filePath), color.FgWhite)
+			if err = replaceInFile(&filePath, variable, value); err != nil {
+				return err
+			}
+		}
+
+		return err
+	})
+
+	return err
 }
 
 /*
