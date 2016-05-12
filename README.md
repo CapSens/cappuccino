@@ -1,5 +1,5 @@
 ## Cappuccino
-Cappuccino is a [Go](https://golang.org) project that aims to help developers avoid doing repetitive tasks by defining a structured `.cappuccino.yml` config file.
+Cappuccino is a [Go](https://golang.org) project that helps developers to avoid doing repetitive tasks by defining a structured `.cappuccino.yml` config file.
 
 Robots should do the hard work, that's why a config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms, without a need for an `LLVM` or an interpreter.
 
@@ -17,11 +17,6 @@ actions:
     content:
       - source: config/database.yml.example
         destination: config/database.yml
-  - name: Moving Licence file to Licence.back
-    type: move
-    content:
-      - source: LICENSE
-        destination: LICENSE.back
   - name: Deleting not needed files
     type: delete
     content:
@@ -38,13 +33,15 @@ actions:
 * _exec_, executes the given command with full list of arguments.
 * _copy_, copies a file from source to destination.
 * _move_, moves a file from source to destination.
-* _replace_, replaces a string in a specified path or by parsing the whole repository.
+* _replace_, replaces a string in a specified path or parses the whole repository.
 * _substitute_, replaces cappuccino defined variables by their proper definition.
 * _delete_, deletes a file.
 
 ### Upcoming features:
 * Substitution with GPG encryption/decryption on the fly.
 * Ability to call [Vault](https://www.hashicorp.com/vault.html) and retreive confidential information.
+* Ability to call Amazon S3 for automatic bucket creation and credentials retrieval.
+* Ability to call and execute a remote .cappuccino.yml config file.
 * Compilable config file for semantic format analysis.
 * Custom user defined types.
 
