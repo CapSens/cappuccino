@@ -9,11 +9,11 @@ sudo curl -sSo /usr/bin/cappuccino https://raw.githubusercontent.com/CapSens/cap
 ```
 
 ### Example of use
-Let's say we need to clone a Ruby on Rails git repository and apply the following changes :
-- Rename the database.yml.example file into database.yml.
-- Delete Procfile and bower.json files.
-- Substitute user defined variables in both .ruby-version and .ruby-gemset files.
-- Create the gemset using RVM.
+Let's say we need to clone a [Ruby on Rails](http://rubyonrails.org/) git repository and apply the following changes :
+- Rename the `database.yml.example` file into `database.yml`.
+- Delete `Procfile` and `bower.json` files.
+- Substitute user defined variables in both `.ruby-version` and `.ruby-gemset` files.
+- Create the gemset using `RVM`.
 - Bundle install, create, migrate and seed the database.
 
 Here is what the config file would look like :
