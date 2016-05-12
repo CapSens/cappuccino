@@ -6,6 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -89,7 +90,7 @@ func main() {
 	var parser = flags.NewParser(&opts, flags.Default)
 
 	if _, err := parser.Parse(); err != nil {
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	if opts.Version {
@@ -203,69 +204,68 @@ func processContent(action *Action, content *ActionContent) {
 		contentType = content.Type
 	}
 
-	if contentType == "exec" {
+	switch contentType {
+	case "exec":
 		command := content.Command
 		coloredContent := fmt.Sprintf("\t-> %s", command)
 		text(coloredContent, color.FgGreen)
 
 		executableCommand := strings.Split(command, " ")
 		executeCommand(executableCommand[0], executableCommand[1:]...)
-	}
 
-	if contentType == "replace" {
+	case "replace":
 		variable := content.Variable
 		value := content.Value
 		path := content.Path
 
-		read, err := ioutil.ReadFile(path)
-		if err != nil {
-			text(err.Error(), color.FgRed)
-			os.Exit(0)
-		}
-
-		varName := fmt.Sprintf("[cappuccino-var-%s]", variable)
-		newContent := strings.Replace(string(read), varName, value, -1)
-
-		if err := ioutil.WriteFile(path, []byte(newContent), 0); err != nil {
-			text(err.Error(), color.FgRed)
-			os.Exit(0)
-		}
-
 		coloredName := colored(variable, color.FgCyan)
-		coloredContent := fmt.Sprintf("\t-> %s", coloredName)
+		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, path)
 		text(coloredContent, color.FgGreen)
-	}
 
-	if contentType == "copy" {
+		if err := replaceInFile(&path, &variable, &value); err != nil {
+			text(err.Error(), color.FgRed)
+			os.Exit(0)
+		}
+
+	case "copy":
 		source := content.Source
 		destination := content.Destination
 
 		coloredSource := colored(source, color.FgMagenta)
-		coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
+		coloredDestination := colored(destination, color.FgMagenta)
+		coloredContent := fmt.Sprintf("\t-> %s -> %s", coloredSource, coloredDestination)
 		text(coloredContent, color.FgGreen)
 
-		executeCommand("cp", source, destination)
-	}
+		if err := copyFile(source, destination); err != nil {
+			text(err.Error(), color.FgRed)
+			os.Exit(0)
+		}
 
-	if contentType == "move" {
+	case "move":
 		source := content.Source
 		destination := content.Destination
 
 		coloredSource := colored(source, color.FgMagenta)
-		coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
+		coloredDestination := colored(destination, color.FgMagenta)
+		coloredContent := fmt.Sprintf("\t-> %s -> %s", coloredSource, coloredDestination)
 		text(coloredContent, color.FgGreen)
 
-		executeCommand("mv", source, destination)
-	}
+		if err := moveFile(source, destination); err != nil {
+			text(err.Error(), color.FgRed)
+			os.Exit(0)
+		}
 
-	if contentType == "delete" {
+	case "delete":
 		path := content.Path
 
 		coloredSource := colored(path, color.FgRed)
 		coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
 		text(coloredContent, color.FgGreen)
 
-		executeCommand("rm", path)
+		if err := deleteFile(path); err != nil {
+			text(err.Error(), color.FgRed)
+			os.Exit(0)
+		}
 	}
 }
 
@@ -312,12 +312,80 @@ func startEngine() {
 }
 
 /*
+  copyFile
+  Copies a file from a source to a destination using standard library.
+*/
+func copyFile(source, destination string) (err error) {
+	in, inErr := os.Open(source)
+	out, outErr := os.Create(destination)
+
+	if inErr != nil {
+		return inErr
+	}
+
+	if outErr != nil {
+		return outErr
+	}
+
+	defer in.Close()
+	defer out.Close()
+
+	if _, err = io.Copy(out, in); err != nil {
+		return err
+	}
+
+	return out.Sync()
+}
+
+/*
+	deleteFile
+	Deletes a standard file using standard library
+*/
+func deleteFile(path string) (err error) {
+	return os.Remove(path)
+}
+
+/*
+	moveFile
+	Moves a standard file from a source to a destination
+	Using both copyFile and deleteFile functions.
+*/
+func moveFile(source, destination string) (err error) {
+	if err = copyFile(source, destination); err != nil {
+		return err
+	}
+
+	if err = deleteFile(source); err != nil {
+		return err
+	}
+
+	return err
+}
+
+/*
+	replaceInFile
+	Replaces a content in a file using standard library
+*/
+func replaceInFile(path, variable, value *string) (err error) {
+	read, err := ioutil.ReadFile(*path)
+	if err != nil {
+		return err
+	}
+
+	varName := fmt.Sprintf("[cappuccino-var-%s]", *variable)
+	newBytes := strings.Replace(string(read), varName, *value, -1)
+
+	return ioutil.WriteFile(*path, []byte(newBytes), 0)
+}
+
+/*
   displayVersion
   Displays the current Cappuccino version.
   Please refer to the CHANGELOG for related changes.
 */
 func displayVersion(config *Config) {
-	text("Detected version: "+config.Version, color.FgYellow)
+	content := fmt.Sprintf("Detected version: %s", config.Version)
+	text(content, color.FgYellow)
 }
 
 /*
@@ -325,7 +393,7 @@ func displayVersion(config *Config) {
   Displays a prefix to all engine related messages
 */
 func prefix() string {
-	return fmt.Sprintf(strings.ToUpper("engine"))
+	return fmt.Sprintf("Engine")
 }
 
 /*
