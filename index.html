@@ -24,7 +24,35 @@
 
 <p>Cappuccino is a <a href="https://golang.org">Go</a> project that aims to help developers avoid doing repetitive tasks by defining a structured <code>.cappuccino.yml</code> config file.</p>
 
-<p>Robots should do the hard work, that's why a typical config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable in all plateforms without a need for an <code>LLVM</code> VM or an interpreter.</p>
+<p>Robots should do the hard work, that's why a typical config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms without a need for an <code>LLVM</code> VM or an interpreter.</p>
+
+<h3>
+<a id="example-of-config-file" class="anchor" href="#example-of-config-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example of config file</h3>
+
+<pre><code>engine: cappuccino
+version: 0.0.1
+actions:
+  - name: Copying database config file
+    type: copy
+    content:
+      - source: config/database.yml.example
+        destination: config/database.yml
+  - name: Moving Licence file to Licence.back
+    type: move
+    content:
+      - source: LICENSE
+        destination: LICENSE.back
+  - name: Deleting not needed files
+    type: delete
+    content:
+      - path: Procfile
+      - path: bower.json
+  - name: Setting up database, migrations and seeds
+    type: exec
+    content:
+      - command: bundle exec rake db:create db:migrate
+      - command: bundle exec rake db:seed
+</code></pre>
 
 <p>Currently available action types:</p>
 
