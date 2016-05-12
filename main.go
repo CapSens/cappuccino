@@ -3,15 +3,14 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"path/filepath"
 	"github.com/fatih/color"
 	"github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -71,19 +70,10 @@ type ActionContent struct {
 	Source      string
 	Destination string
 	Variable    string
+	Text        string
 	Path        string
 	Value       string
-}
-
-/*
-  ActionContentArgument
-  Structure mirroring the format of a valid action command in the config file
-	Consists of a variable, path and value.
-*/
-type ActionContentArgument struct {
-	Variable string
-	Path     string
-	Value    string
+	Indent      int
 }
 
 func main() {
@@ -161,7 +151,8 @@ func unmarshalConfig(href string) {
 	text("File .cappuccino.yml detected", color.FgYellow)
 
 	if err := yaml.Unmarshal(content, &config); err != nil {
-		log.Fatalf("Error: %v", err)
+		text(err.Error(), color.FgRed)
+		os.Exit(0)
 	}
 
 	displayVersion(&config)
@@ -175,7 +166,7 @@ func unmarshalConfig(href string) {
   thread safe executeCommand function.
 */
 func processConfig(config *Config) {
-	text("Starting actions execution", color.FgYellow)
+	text("Starting execution of actions", color.FgYellow)
 	removeGitDirectory()
 
 	for i := 0; i < len(config.Actions); i++ {
@@ -214,10 +205,11 @@ func processContent(action *Action, content *ActionContent) {
 		executableCommand := strings.Split(command, " ")
 		executeCommand(executableCommand[0], executableCommand[1:]...)
 
-	case "replace":
-		variable := content.Variable
-		value := content.Value
+  case "replace":
 		path := content.Path
+		value := strings.TrimSpace(content.Value)
+		indent := content.Indent
+		variable := content.Text
 
 		var shownPath string
 		if content.Path != "" {
@@ -230,7 +222,29 @@ func processContent(action *Action, content *ActionContent) {
 		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, shownPath)
 		text(coloredContent, color.FgGreen)
 
-		if err := replaceFile(&path, &variable, &value); err != nil {
+		if err := substituteFile(&path, &variable, &value, &indent); err != nil {
+			text(err.Error(), color.FgRed)
+			os.Exit(0)
+		}
+
+	case "substitute":
+		path := content.Path
+		value := strings.TrimSpace(content.Value)
+		indent := content.Indent
+		variable := fmt.Sprintf("[cappuccino-var-%s]", content.Variable)
+
+		var shownPath string
+		if content.Path != "" {
+			shownPath = content.Path
+		} else {
+			shownPath = "all files"
+		}
+
+		coloredName := colored(variable, color.FgCyan)
+		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, shownPath)
+		text(coloredContent, color.FgGreen)
+
+		if err := substituteFile(&path, &variable, &value, &indent); err != nil {
 			text(err.Error(), color.FgRed)
 			os.Exit(0)
 		}
@@ -371,46 +385,56 @@ func moveFile(source, destination string) (err error) {
 }
 
 /*
-	replaceFile
-	Dispatches the path information to either replaceInFile
-	Or replaceInPath depending of if a path is given or not
+	substituteFile
+	Dispatches the path information to either substituteInFile
+	Or substituteInPath depending of if a path is given or not
 */
-func replaceFile(path, variable, value *string) (err error) {
+func substituteFile(path, variable, value *string, indent *int) (err error) {
 	if *path != "" {
-		return replaceInFile(path, variable, value)
+		return substituteInFile(path, variable, value, indent)
 	} else {
-		return replaceInPath(variable, value)
+		return substituteInPath(variable, value, indent)
 	}
 
 	return err
 }
 
 /*
-	replaceInFile
+	substituteInFile
 	Replaces a content in a file using standard library
 */
-func replaceInFile(path, variable, value *string) (err error) {
+func substituteInFile(path, variable, value *string, indent *int) (err error) {
 	read, err := ioutil.ReadFile(*path)
 	if err != nil {
 		return err
 	}
 
-	varName := fmt.Sprintf("[cappuccino-var-%s]", *variable)
-	newBytes := strings.Replace(string(read), varName, *value, -1)
+	indentedBlock := strings.Join(indentBlock(value, indent), "\n")
+	newBytes := strings.Replace(string(read), *variable, indentedBlock, -1)
 
 	return ioutil.WriteFile(*path, []byte(newBytes), 0)
 }
 
+func indentBlock(content *string, indent *int) (newData []string) {
+	return Map(strings.Split(*content, "\n"), func(s string, i int) string {
+		if i != 0 && indent != nil {
+			return strings.Repeat(" ", *indent) + s
+		} else {
+			return s
+		}
+	})
+}
+
 /*
-	replaceInPath
+	substituteInPath
 	Replaces a content if found in all files in the current directory
 	This is recursive and can take a while for very large directories
 */
-func replaceInPath(variable, value *string) (err error) {
+func substituteInPath(variable, value *string, indent *int) (err error) {
 	err = filepath.Walk(".", func(filePath string, f os.FileInfo, err error) error {
 		if !f.IsDir() {
 			// text(fmt.Sprintf("\t-> Visiting: %s", filePath), color.FgWhite)
-			if err = replaceInFile(&filePath, variable, value); err != nil {
+			if err = substituteInFile(&filePath, variable, value, indent); err != nil {
 				return err
 			}
 		}
@@ -419,6 +443,21 @@ func replaceInPath(variable, value *string) (err error) {
 	})
 
 	return err
+}
+
+/*
+	Map
+	Returns a new slice containing the results of applying the function f
+	to each string in the original slice.
+*/
+func Map(vs []string, f func(string, int) string) []string {
+	vsm := make([]string, len(vs))
+
+	for i, v := range vs {
+		vsm[i] = f(v, i)
+	}
+
+	return vsm
 }
 
 /*
