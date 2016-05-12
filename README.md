@@ -16,7 +16,7 @@ Let's say we need to clone a [Ruby on Rails](http://rubyonrails.org/) git reposi
 - Create the gemset using `RVM`.
 - Bundle install, create, migrate and seed the database.
 
-Here is what the config file would look like :
+First, here is what the config file would look like :
 
 ```yaml
 engine: cappuccino
@@ -53,7 +53,17 @@ actions:
       - command: bundle exec rake db:seed
 ```
 
-If an action is a `substitution` and the variable name is `gemset`, cappuccino will search and find `[cappuccino-var-gemset]` in the repository and substitute it with related value.
+The config file should be placed in the root of the git repository to be detected and parsed by `cappuccino`. Once done, you can call the following command :
+```
+cappuccino -g git@github.com:username/reponame.git -b master
+```
+
+`-b master` is optional as the master branch is selected by default. Once the above command executed, `cappuccino` will clone the repository and apply the defined actions.
+
+### Important
+- If an action is a `substitution` and the variable name is `gemset`, cappuccino will search and find `[cappuccino-var-gemset]` in the repository and substitute it with related value.
+- Both `substitution` and `replace` action types accept a `indent` key that informs `cappuccino` to indent the string or block by the desired nombre of spaces.
+- The `path` key is optional but recommended; not defining it will force a [Depth-first Search Algorithm](https://en.wikipedia.org/wiki/Depth-first_search) on the whole repository.
 
 ### Currently available action types:
 * _exec_, executes the given command with full list of arguments.
