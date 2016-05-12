@@ -45,7 +45,7 @@
 <li>Bundle install, create, migrate and seed the database.</li>
 </ul>
 
-<p>Here is what the config file would look like :</p>
+<p>First, here is what the config file would look like :</p>
 
 <div class="highlight highlight-source-yaml"><pre><span class="pl-s"><span class="pl-ent">engine:</span> <span class="pl-s">cappuccino</span></span>
 <span class="pl-s"><span class="pl-ent">actions:</span></span>
@@ -80,7 +80,21 @@
       <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">bundle exec rake db:create db:migrate</span></span>
       <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">bundle exec rake db:seed</span></span></pre></div>
 
-<p>If an action is a <code>substitution</code> and the variable name is <code>gemset</code>, cappuccino will search and find <code>[cappuccino-var-gemset]</code> in the repository and substitute it with related value.</p>
+<p>The config file should be placed in the root of the git repository to be detected and parsed by <code>cappuccino</code>. Once done, you can call the following command :</p>
+
+<pre><code>cappuccino -g git@github.com:username/reponame.git -b master
+</code></pre>
+
+<p><code>-b master</code> is optional as the master branch is selected by default. Once the above command executed, <code>cappuccino</code> will clone the repository and apply the defined actions.</p>
+
+<h3>
+<a id="important" class="anchor" href="#important" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Important</h3>
+
+<ul>
+<li>If an action is a <code>substitution</code> and the variable name is <code>gemset</code>, cappuccino will search and find <code>[cappuccino-var-gemset]</code> in the repository and substitute it with related value.</li>
+<li>Both <code>substitution</code> and <code>replace</code> action types accept a <code>indent</code> key that informs <code>cappuccino</code> to indent the string or block by the desired nombre of spaces.</li>
+<li>The <code>path</code> key is optional but recommended; not defining it will force a <a href="https://en.wikipedia.org/wiki/Depth-first_search">Depth-first Search Algorithm</a> on the whole repository.</li>
+</ul>
 
 <h3>
 <a id="currently-available-action-types" class="anchor" href="#currently-available-action-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Currently available action types:</h3>
