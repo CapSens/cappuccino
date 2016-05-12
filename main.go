@@ -205,7 +205,7 @@ func processContent(action *Action, content *ActionContent) {
 		executableCommand := strings.Split(command, " ")
 		executeCommand(executableCommand[0], executableCommand[1:]...)
 
-  case "replace":
+	case "replace":
 		path := content.Path
 		value := strings.TrimSpace(content.Value)
 		indent := content.Indent
