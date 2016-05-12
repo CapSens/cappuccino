@@ -148,9 +148,9 @@ func cloneRepo(href string, branch string) {
   and falls through the execution process.
 */
 func unmarshalConfig(href string) {
+	os.Chdir(findRepoName(href))
+
 	config := Config{}
-	repoName := "app"
-	os.Chdir(repoName)
 	content, err := ioutil.ReadFile(".cappuccino.yml")
 
 	if err != nil {
@@ -419,6 +419,15 @@ func replaceInPath(variable, value *string) (err error) {
 	})
 
 	return err
+}
+
+/*
+	findRepoName
+	Extracts Git repository name from a valid url
+*/
+func findRepoName(href string) string {
+	re := regexp.MustCompile("/(.*).git")
+	return re.FindStringSubmatch(href)[1]
 }
 
 /*
