@@ -1,7 +1,7 @@
 ## Cappuccino
 Cappuccino is a [Go](https://golang.org) project that aims to help developers avoid doing repetitive tasks by defining a structured `.cappuccino.yml` config file.
 
-Because robots should do the hard work, a typical config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms, without a need for an `LLVM` or an interpreter.
+Robots should do the hard work, that's why a config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms, without a need for an `LLVM` or an interpreter.
 
 ### Installation
 ```
