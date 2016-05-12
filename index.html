@@ -22,7 +22,7 @@
       <h2>
 <a id="cappuccino" class="anchor" href="#cappuccino" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cappuccino</h2>
 
-<p>Cappuccino is a <a href="https://golang.org">Go</a> project that aims to help developers avoid doing repetitive tasks by defining a structured <code>.cappuccino.yml</code> config file.</p>
+<p>Cappuccino is a <a href="https://golang.org">Go</a> project that helps developers to avoid doing repetitive tasks by defining a structured <code>.cappuccino.yml</code> config file.</p>
 
 <p>Robots should do the hard work, that's why a config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms, without a need for an <code>LLVM</code> or an interpreter.</p>
 
@@ -33,7 +33,19 @@
 </code></pre>
 
 <h3>
-<a id="example-of-config-file" class="anchor" href="#example-of-config-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example of config file</h3>
+<a id="example-of-use" class="anchor" href="#example-of-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example of use</h3>
+
+<p>Let's say we need to clone a Ruby on Rails git repository and apply the following changes :</p>
+
+<ul>
+<li>Rename the database.yml.example file into database.yml.</li>
+<li>Delete Procfile and bower.json files.</li>
+<li>Substitute user defined variables in both .ruby-version and .ruby-gemset files.</li>
+<li>Create the gemset using RVM.</li>
+<li>Bundle install, create, migrate and seed the database.</li>
+</ul>
+
+<p>Here is what the config file would look like :</p>
 
 <div class="highlight highlight-source-yaml"><pre><span class="pl-s"><span class="pl-ent">engine:</span> <span class="pl-s">cappuccino</span></span>
 <span class="pl-s"><span class="pl-ent">actions:</span></span>
@@ -42,21 +54,33 @@
     <span class="pl-s"><span class="pl-ent">content:</span></span>
       <span class="pl-s">- <span class="pl-ent">source:</span> <span class="pl-s">config/database.yml.example</span></span>
         <span class="pl-s"><span class="pl-ent">destination:</span> <span class="pl-s">config/database.yml</span></span>
-  <span class="pl-s">- <span class="pl-ent">name:</span> <span class="pl-s">Moving Licence file to Licence.back</span></span>
-    <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">move</span></span>
-    <span class="pl-s"><span class="pl-ent">content:</span></span>
-      <span class="pl-s">- <span class="pl-ent">source:</span> <span class="pl-s">LICENSE</span></span>
-        <span class="pl-s"><span class="pl-ent">destination:</span> <span class="pl-s">LICENSE.back</span></span>
   <span class="pl-s">- <span class="pl-ent">name:</span> <span class="pl-s">Deleting not needed files</span></span>
     <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">delete</span></span>
     <span class="pl-s"><span class="pl-ent">content:</span></span>
       <span class="pl-s">- <span class="pl-ent">path:</span> <span class="pl-s">Procfile</span></span>
       <span class="pl-s">- <span class="pl-ent">path:</span> <span class="pl-s">bower.json</span></span>
+  <span class="pl-s">- <span class="pl-ent">name:</span> <span class="pl-s">Replacing variables with their respective content</span></span>
+    <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">substitute</span></span>
+    <span class="pl-s"><span class="pl-ent">content:</span></span>
+      <span class="pl-s">- <span class="pl-ent">variable:</span> <span class="pl-s">gemset</span></span>
+        <span class="pl-s"><span class="pl-ent">path:</span> <span class="pl-s">.ruby-gemset</span></span>
+        <span class="pl-s"><span class="pl-ent">value:</span> <span class="pl-s">app_dev</span></span>
+      <span class="pl-s">- <span class="pl-ent">variable:</span> <span class="pl-s">version</span></span>
+        <span class="pl-s"><span class="pl-ent">path:</span> <span class="pl-s">.ruby-version</span></span>
+        <span class="pl-s"><span class="pl-ent">value:</span> <span class="pl-s">ruby-2.2.4</span></span>
+  <span class="pl-s">- <span class="pl-ent">name:</span> <span class="pl-s">Running bundle &amp; using current gemset</span></span>
+    <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">exec</span></span>
+    <span class="pl-s"><span class="pl-ent">content:</span></span>
+      <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">rvm use .</span></span>
+      <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">gem install bundler</span></span>
+      <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">bundle</span></span>
   <span class="pl-s">- <span class="pl-ent">name:</span> <span class="pl-s">Setting up database, migrations and seeds</span></span>
     <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">exec</span></span>
     <span class="pl-s"><span class="pl-ent">content:</span></span>
       <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">bundle exec rake db:create db:migrate</span></span>
       <span class="pl-s">- <span class="pl-ent">command:</span> <span class="pl-s">bundle exec rake db:seed</span></span></pre></div>
+
+<p>If an action is a <code>substitution</code> and the variable name is <code>gemset</code>, cappuccino will search and find <code>[cappuccino-var-gemset]</code> in the repository and substitute it with related value.</p>
 
 <h3>
 <a id="currently-available-action-types" class="anchor" href="#currently-available-action-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Currently available action types:</h3>
@@ -69,7 +93,7 @@
 <li>
 <em>move</em>, moves a file from source to destination.</li>
 <li>
-<em>replace</em>, replaces a string in a specified path or by parsing the whole repository.</li>
+<em>replace</em>, replaces a string in a specified path or parses the whole repository.</li>
 <li>
 <em>substitute</em>, replaces cappuccino defined variables by their proper definition.</li>
 <li>
@@ -82,6 +106,8 @@
 <ul>
 <li>Substitution with GPG encryption/decryption on the fly.</li>
 <li>Ability to call <a href="https://www.hashicorp.com/vault.html">Vault</a> and retreive confidential information.</li>
+<li>Ability to call Amazon S3 for automatic bucket creation and credentials retrieval.</li>
+<li>Ability to call and execute a remote .cappuccino.yml config file.</li>
 <li>Compilable config file for semantic format analysis.</li>
 <li>Custom user defined types.</li>
 </ul>
