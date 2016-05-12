@@ -22,7 +22,20 @@
       <h2>
 <a id="cappuccino" class="anchor" href="#cappuccino" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cappuccino</h2>
 
-<p>Cappuccino makes it simple to clone a git repository and execute a custom list of actions.</p>
+<p>Cappuccino is a <a href="https://golang.org">Go</a> project that aims to help developers avoid doing repetitive tasks by defining a structured <code>.cappuccino.yml</code> config file.</p>
+
+<p>Robots should do the hard work, that's why a typical config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable in all plateforms without a need for an <code>LLVM</code> VM or an interpreter.</p>
+
+<p>Currently available action types:</p>
+
+<ul>
+<li>exec</li>
+<li>copy</li>
+<li>move</li>
+<li>replace</li>
+<li>substitute</li>
+<li>delete</li>
+</ul>
 
 <h2>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
