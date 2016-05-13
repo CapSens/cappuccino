@@ -1,7 +1,7 @@
 ## Cappuccino
-Cappuccino is a [Go](https://golang.org) project that helps developers to avoid doing repetitive tasks by defining a structured `.cappuccino.yml` config file.
+Cappuccino is a [Go](https://golang.org) project that helps developers avoid repeating tasks by defining a structured `.cappuccino.yml` config file.
 
-Robots should do the hard work, that's why a config file can contain from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms, without a need for an `LLVM` or an interpreter.
+Robots should do the hard work, that's why a config file contains from few to dozens of actions requiring executing commands, renaming, searching and replacing, generating from templates and more. Cappuccino is written in Go and is thus executable on all plateforms, without a need for an `LLVM` or an interpreter.
 
 ### Installation
 ```
@@ -53,7 +53,7 @@ actions:
       - command: bundle exec rake db:seed
 ```
 
-The config file should be placed in the root of the git repository to be detected and parsed by `cappuccino`. Once done, you can call the following command :
+The config file should be placed at the root of the git repository to be detected and parsed by `cappuccino`. Once done, you can call the following command :
 ```
 cappuccino -g git@github.com:username/reponame.git -b master
 ```
@@ -62,7 +62,7 @@ cappuccino -g git@github.com:username/reponame.git -b master
 
 ### Important
 - If an action is a `substitution` and the variable name is `gemset`, cappuccino will search and find `[cappuccino-var-gemset]` in the repository and substitute it with related value.
-- Both `substitution` and `replace` action types accept a `indent` key that informs `cappuccino` to indent the string or block by the desired nombre of spaces.
+- Both `substitution` and `replace` action types accept a `indent` key that informs `cappuccino` to indent the string or block by the desired number of spaces.
 - The `path` key is optional but recommended; not defining it will force a [Depth-first Search Algorithm](https://en.wikipedia.org/wiki/Depth-first_search) on the whole repository.
 
 ### Currently available action types:
@@ -78,7 +78,7 @@ cappuccino -g git@github.com:username/reponame.git -b master
 * Ability to call [Vault](https://www.hashicorp.com/vault.html) and retreive confidential information.
 * Ability to call Amazon S3 for automatic bucket creation and credentials retrieval.
 * Ability to call and execute a remote .cappuccino.yml config file.
-* Compilable config file for semantic format analysis.
+* Compiled config file for semantic format analysis.
 * Custom user defined types.
 
 ## License
