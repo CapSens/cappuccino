@@ -8,6 +8,32 @@ Robots should do the hard work, that's why a config file contains from few to do
 sudo curl -sSo /usr/bin/cappuccino https://raw.githubusercontent.com/CapSens/cappuccino/master/cappuccino && sudo chmod 777 /usr/bin/cappuccino
 ```
 
+### Manual download
+Every new Cappuccino version is released using Github Releases and latest release download links are available here:
+```
+https://github.com/CapSens/cappuccino/releases/latest
+```
+
+Here is are all available plateforms:
+```
+i386
+amd64
+armhf
+darwin_386
+darwin_amd64
+freebsd_386
+freebsd_amd64
+freebsd_arm
+linux_386
+linux_amd64
+linux_arm
+netbsd_386
+netbsd_amd64
+netbsd_arm
+windows_386
+windows_amd64
+```
+
 ### Example of use
 Let's say we need to clone a [Ruby on Rails](http://rubyonrails.org/) git repository and apply the following changes :
 - Rename the `database.yml.example` file into `database.yml`.
