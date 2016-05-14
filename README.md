@@ -9,12 +9,12 @@ sudo curl -sSo /usr/bin/cappuccino https://raw.githubusercontent.com/CapSens/cap
 ```
 
 ### Manual download
-Every new Cappuccino version is released using Github Releases and latest release download links are available here:
+Every new Cappuccino version is released using Github Releases and the latest release download links are available here:
 ```
 https://github.com/CapSens/cappuccino/releases/latest
 ```
 
-Here is are all available plateforms:
+Here are all available plateforms:
 ```
 i386
 amd64
