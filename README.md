@@ -89,7 +89,7 @@ cappuccino -g git@github.com:username/reponame.git -b master
 - Both `substitution` and `replace` action types accept a `indent` key that informs `cappuccino` to indent the string or block by the desired number of spaces.
 - The `path` key is optional but recommended; not defining it will force a [Depth-first Search Algorithm](https://en.wikipedia.org/wiki/Depth-first_search) on the whole repository.
 
-### Display must change warning
+### Display warnings
 Cappuccino will find all files containing `[cappuccino-warning]` and display related file name and line number.
 Adding `[cappuccino-warning]` to line 42 of `routes.rb` file will output upon config file parsing:
 ```
