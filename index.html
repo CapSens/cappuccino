@@ -91,10 +91,8 @@ windows_amd64
     <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">substitute</span></span>
     <span class="pl-s"><span class="pl-ent">content:</span></span>
       <span class="pl-s">- <span class="pl-ent">variable:</span> <span class="pl-s">gemset</span></span>
-        <span class="pl-s"><span class="pl-ent">path:</span> <span class="pl-s">.ruby-gemset</span></span>
         <span class="pl-s"><span class="pl-ent">value:</span> <span class="pl-s">app_dev</span></span>
       <span class="pl-s">- <span class="pl-ent">variable:</span> <span class="pl-s">version</span></span>
-        <span class="pl-s"><span class="pl-ent">path:</span> <span class="pl-s">.ruby-version</span></span>
         <span class="pl-s"><span class="pl-ent">value:</span> <span class="pl-s">ruby-2.2.4</span></span>
   <span class="pl-s">- <span class="pl-ent">name:</span> <span class="pl-s">Running bundle &amp; using current gemset</span></span>
     <span class="pl-s"><span class="pl-ent">type:</span> <span class="pl-s">exec</span></span>
@@ -125,6 +123,15 @@ windows_amd64
 </ul>
 
 <h3>
+<a id="display-warnings" class="anchor" href="#display-warnings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Display warnings</h3>
+
+<p>Cappuccino will find all files containing <code>[cappuccino-warning]</code> and display related file name and line number.
+Adding <code>[cappuccino-warning]</code> to line 42 of <code>routes.rb</code> file will output upon config file parsing:</p>
+
+<pre><code>Please make sure to setup needed information located L-042 in config/routes.rb
+</code></pre>
+
+<h3>
 <a id="currently-available-action-types" class="anchor" href="#currently-available-action-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Currently available action types:</h3>
 
 <ul>
@@ -139,6 +146,8 @@ windows_amd64
 <li>
 <em>substitute</em>, replaces cappuccino defined variables by their proper definition.</li>
 <li>
+<em>template</em>, takes a file from <code>.cappuccino</code> folder and copies it to repository.</li>
+<li>
 <em>delete</em>, deletes a file.</li>
 </ul>
 
@@ -146,6 +155,7 @@ windows_amd64
 <a id="upcoming-features" class="anchor" href="#upcoming-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Upcoming features:</h3>
 
 <ul>
+<li>Automatic indexing of repository files, folders and cappuccino variables.</li>
 <li>Substitution with GPG encryption/decryption on the fly.</li>
 <li>Ability to call <a href="https://www.hashicorp.com/vault.html">Vault</a> and retreive confidential information.</li>
 <li>Ability to call Amazon S3 for automatic bucket creation and credentials retrieval.</li>
