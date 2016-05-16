@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
+	"bufio"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -157,6 +158,61 @@ func unmarshalConfig(href string) {
 
 	displayVersion(&config)
 	processConfig(&config)
+	processWarnings()
+}
+
+/*
+	processWarnings
+*/
+func processWarnings() {
+	text("Parsing repository for valuable information", color.FgYellow)
+	filepath.Walk(".", func(filePath string, f os.FileInfo, err error) error {
+		if strings.Contains(filePath, ".cappuccino") {
+			return nil
+		}
+
+		if !f.IsDir() {
+			// text(fmt.Sprintf("\t-> %s", filePath), color.FgYellow, false)
+			if err := processWarningInFile(&filePath); err != nil {
+
+			}
+		}
+
+		return err
+	})
+}
+
+func processWarningInFile(path *string) (err error) {
+	// read, err := ioutil.ReadFile(*path)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// if strings.Contains(string(read), "[cappuccino-warning]") {
+	// 	*warningPaths = append(*warningPaths, *path)
+	// }
+
+	f, err := os.Open(*path)
+	if err != nil {
+	    return err
+	}
+
+	scanner := bufio.NewScanner(f)
+	line := 1
+	for scanner.Scan() {
+		if strings.Contains(scanner.Text(), "[cappuccino-warning]") {
+			textContent := "\t-> Please make sure to setup needed information located %s in %s"
+			content := fmt.Sprintf(textContent,
+													   colored(fmt.Sprintf("L-%03d", line), color.FgYellow),
+														 colored(*path, color.FgYellow))
+
+			text(content, color.FgYellow)
+		}
+
+		line++
+	}
+
+	return scanner.Err()
 }
 
 /*
@@ -244,8 +300,8 @@ func processContent(action *Action, content *ActionContent) {
 			destination = content.Path
 		}
 
-		coloredSource := colored(source, color.FgMagenta)
-		coloredDestination := colored(destination, color.FgMagenta)
+		coloredSource := colored(source, color.FgBlue)
+		coloredDestination := colored(destination, color.FgBlue)
 		coloredContent := fmt.Sprintf("\t-> %s -> %s", coloredSource, coloredDestination)
 		text(coloredContent, color.FgGreen)
 
@@ -314,6 +370,10 @@ func executeCommand(command string, args ...string) {
 func removeGitDirectory() {
 	text("Removing existing .git folder", color.FgGreen)
 	executeCommand("rm", "-rf", ".git")
+
+	coloredSource := colored("rm -rf .git", color.FgRed)
+	coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
+	text(coloredContent, color.FgGreen)
 }
 
 /*
@@ -480,8 +540,21 @@ func prefix() string {
   text
   Displays a message on the screen using a particular color
 */
-func text(content string, attribute color.Attribute) {
-	fmt.Printf("%s %s\n", colored(prefix(), attribute), content)
+func text(content string, attribute color.Attribute, returnOperator ...bool) {
+	returnLine := true
+	var printfContent string
+
+	if len(returnOperator) > 0 {
+		returnLine = returnOperator[0]
+	}
+
+	if returnLine {
+		printfContent = "%s %s\n"
+	} else {
+		printfContent = "\r%s %s"
+	}
+
+	fmt.Printf(printfContent, colored(prefix(), attribute), content)
 }
 
 /*
