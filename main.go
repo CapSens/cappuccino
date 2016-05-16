@@ -233,9 +233,16 @@ func processContent(action *Action, content *ActionContent) {
 			os.Exit(0)
 		}
 
-	case "copy":
-		source := content.Source
-		destination := content.Destination
+	case "copy", "template":
+		var source, destination string
+
+		if contentType == "copy" {
+			source = content.Source
+			destination = content.Destination
+		} else {
+			source = fmt.Sprintf(".cappuccino/%s", content.Path)
+			destination = content.Path
+		}
 
 		coloredSource := colored(source, color.FgMagenta)
 		coloredDestination := colored(destination, color.FgMagenta)
