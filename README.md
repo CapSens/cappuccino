@@ -61,10 +61,8 @@ actions:
     type: substitute
     content:
       - variable: gemset
-        path: .ruby-gemset
         value: app_dev
       - variable: version
-        path: .ruby-version
         value: ruby-2.2.4
   - name: Running bundle & using current gemset
     type: exec
@@ -97,9 +95,11 @@ cappuccino -g git@github.com:username/reponame.git -b master
 * _move_, moves a file from source to destination.
 * _replace_, replaces a string in a specified path or parses the whole repository.
 * _substitute_, replaces cappuccino defined variables by their proper definition.
+* _template_, takes a file from `.cappuccino` folder and copies it to repository.
 * _delete_, deletes a file.
 
 ### Upcoming features:
+* Automatic indexing of repository files, folders and cappuccino variables.
 * Substitution with GPG encryption/decryption on the fly.
 * Ability to call [Vault](https://www.hashicorp.com/vault.html) and retreive confidential information.
 * Ability to call Amazon S3 for automatic bucket creation and credentials retrieval.
