@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/fatih/color"
@@ -8,7 +9,6 @@ import (
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-	"bufio"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -159,60 +159,6 @@ func unmarshalConfig(href string) {
 	displayVersion(&config)
 	processConfig(&config)
 	processWarnings()
-}
-
-/*
-	processWarnings
-*/
-func processWarnings() {
-	text("Parsing repository for valuable information", color.FgYellow)
-	filepath.Walk(".", func(filePath string, f os.FileInfo, err error) error {
-		if strings.Contains(filePath, ".cappuccino") {
-			return nil
-		}
-
-		if !f.IsDir() {
-			// text(fmt.Sprintf("\t-> %s", filePath), color.FgYellow, false)
-			if err := processWarningInFile(&filePath); err != nil {
-
-			}
-		}
-
-		return err
-	})
-}
-
-func processWarningInFile(path *string) (err error) {
-	// read, err := ioutil.ReadFile(*path)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// if strings.Contains(string(read), "[cappuccino-warning]") {
-	// 	*warningPaths = append(*warningPaths, *path)
-	// }
-
-	f, err := os.Open(*path)
-	if err != nil {
-	    return err
-	}
-
-	scanner := bufio.NewScanner(f)
-	line := 1
-	for scanner.Scan() {
-		if strings.Contains(scanner.Text(), "[cappuccino-warning]") {
-			textContent := "\t-> Please make sure to setup needed information located %s in %s"
-			content := fmt.Sprintf(textContent,
-													   colored(fmt.Sprintf("L-%03d", line), color.FgYellow),
-														 colored(*path, color.FgYellow))
-
-			text(content, color.FgYellow)
-		}
-
-		line++
-	}
-
-	return scanner.Err()
 }
 
 /*
@@ -495,6 +441,52 @@ func substituteInPath(variable, value *string, indent *int) (err error) {
 }
 
 /*
+	processWarnings
+*/
+func processWarnings() {
+	text("Parsing repository for valuable information", color.FgYellow)
+	filepath.Walk(".", func(filePath string, f os.FileInfo, err error) error {
+		if strings.Contains(filePath, ".cappuccino") {
+			return nil
+		}
+
+		if !f.IsDir() {
+			// text(fmt.Sprintf("\t-> %s", filePath), color.FgYellow, false)
+			if err := processWarningInFile(&filePath); err != nil {
+
+			}
+		}
+
+		return err
+	})
+}
+
+func processWarningInFile(path *string) (err error) {
+	f, err := os.Open(*path)
+	if err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(f)
+	line := 1
+
+	for scanner.Scan() {
+		if bytes.Contains(scanner.Bytes(), []byte("[cappuccino-warning]")) {
+			textContent := "\t-> Please make sure to setup needed information located %s in %s"
+			content := fmt.Sprintf(textContent,
+				colored(fmt.Sprintf("L-%03d", line), color.FgYellow),
+				colored(*path, color.FgYellow))
+
+			text(content, color.FgYellow)
+		}
+
+		line++
+	}
+
+	return scanner.Err()
+}
+
+/*
   Map
   Returns a new slice containing the results of applying the function f
   to each string in the original slice.
@@ -563,4 +555,11 @@ func text(content string, attribute color.Attribute, returnOperator ...bool) {
 */
 func colored(text string, attribute color.Attribute) string {
 	return color.New(attribute).SprintFunc()(text)
+}
+
+/*
+	getMessage
+*/
+func getMessage(index int) string {
+	return "nothing"
 }
