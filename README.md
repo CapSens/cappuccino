@@ -5,7 +5,7 @@ Robots should do the hard work, that's why a config file contains from few to do
 
 ### Installation
 ```
-sudo curl -sSo /usr/bin/cappuccino https://raw.githubusercontent.com/CapSens/cappuccino/master/cappuccino && sudo chmod 777 /usr/bin/cappuccino
+sudo curl -sSo /usr/bin/cappuccino https://raw.githubusercontent.com/CapSens/cappuccino/master/main && sudo chmod 777 /usr/bin/cappuccino
 ```
 
 ### Manual download
@@ -16,22 +16,52 @@ https://github.com/CapSens/cappuccino/releases/latest
 
 Here are all available plateforms:
 ```
-i386
-amd64
-armhf
-darwin_386
-darwin_amd64
-freebsd_386
-freebsd_amd64
-freebsd_arm
-linux_386
-linux_amd64
-linux_arm
-netbsd_386
-netbsd_amd64
-netbsd_arm
-windows_386
-windows_amd64
+### Darwin (Apple Mac)
+
+ * [cappuccino\_0.1.3\_darwin\_386.zip](cappuccino_0.1.3_darwin_386.zip)
+ * [cappuccino\_0.1.3\_darwin\_amd64.zip](cappuccino_0.1.3_darwin_amd64.zip)
+
+### FreeBSD
+
+ * [cappuccino\_0.1.3\_freebsd\_386.zip](cappuccino_0.1.3_freebsd_386.zip)
+ * [cappuccino\_0.1.3\_freebsd\_amd64.zip](cappuccino_0.1.3_freebsd_amd64.zip)
+ * [cappuccino\_0.1.3\_freebsd\_arm.zip](cappuccino_0.1.3_freebsd_arm.zip)
+
+### Linux
+
+ * [cappuccino\_0.1.3\_amd64.deb](cappuccino_0.1.3_amd64.deb)
+ * [cappuccino\_0.1.3\_armhf.deb](cappuccino_0.1.3_armhf.deb)
+ * [cappuccino\_0.1.3\_i386.deb](cappuccino_0.1.3_i386.deb)
+ * [cappuccino\_0.1.3\_linux\_386.tar.gz](cappuccino_0.1.3_linux_386.tar.gz)
+ * [cappuccino\_0.1.3\_linux\_amd64.tar.gz](cappuccino_0.1.3_linux_amd64.tar.gz)
+ * [cappuccino\_0.1.3\_linux\_arm.tar.gz](cappuccino_0.1.3_linux_arm.tar.gz)
+
+### MS Windows
+
+ * [cappuccino\_0.1.3\_windows\_386.zip](cappuccino_0.1.3_windows_386.zip)
+ * [cappuccino\_0.1.3\_windows\_amd64.zip](cappuccino_0.1.3_windows_amd64.zip)
+
+### NetBSD
+
+ * [cappuccino\_0.1.3\_netbsd\_386.zip](cappuccino_0.1.3_netbsd_386.zip)
+ * [cappuccino\_0.1.3\_netbsd\_amd64.zip](cappuccino_0.1.3_netbsd_amd64.zip)
+ * [cappuccino\_0.1.3\_netbsd\_arm.zip](cappuccino_0.1.3_netbsd_arm.zip)
+
+### OpenBSD
+
+ * [cappuccino\_0.1.3\_openbsd\_386.zip](cappuccino_0.1.3_openbsd_386.zip)
+ * [cappuccino\_0.1.3\_openbsd\_amd64.zip](cappuccino_0.1.3_openbsd_amd64.zip)
+
+### Other files
+
+ * [control.tar.gz](.goxc-temp/control.tar.gz)
+ * [data.tar.gz](.goxc-temp/data.tar.gz)
+ * [LICENSE.md](LICENSE.md)
+ * [README.md](README.md)
+
+### Plan 9
+
+ * [cappuccino\_0.1.3\_plan9\_386.zip](cappuccino_0.1.3_plan9_386.zip)
 ```
 
 ### Example of use

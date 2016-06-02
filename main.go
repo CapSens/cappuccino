@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -16,7 +15,7 @@ import (
 	"strings"
 )
 
-const VERSION = "0.1.2"
+const VERSION = "0.1.3"
 
 /*
   GitOptions
@@ -107,16 +106,16 @@ func main() {
   Same logic should be applied for a SVN cloning process.
 */
 func verifyGitUrl(href string) {
-	text(fmt.Sprintf("Checking git url format (%s)", href), color.FgYellow)
+	text(fmt.Sprintf("Checking git url format (%s)", href))
 	regex := "((git|ssh|http(s)?)|(git@[\\w\\.]+))(:(//)?)([\\w\\.@\\:/\\-~]+)(\\.git)(/)?"
 
 	match, _ := regexp.MatchString(regex, href)
 	if match {
 		content := fmt.Sprintf("Git url format successfuly verified")
-		text(content, color.FgYellow)
+		text(content)
 	} else {
 		content := fmt.Sprintf("Git url format is not valid")
-		text(content, color.FgRed)
+		text(content)
 		os.Exit(0)
 	}
 }
@@ -128,7 +127,7 @@ func verifyGitUrl(href string) {
 */
 func cloneRepo(href string, branch string) {
 	content := fmt.Sprintf("Cloning git repository (branch: %s)", branch)
-	text(content, color.FgYellow)
+	text(content)
 	executeCommand("git", "clone", href, "-b", branch)
 }
 
@@ -145,14 +144,14 @@ func unmarshalConfig(href string) {
 	content, err := ioutil.ReadFile(".cappuccino.yml")
 
 	if err != nil {
-		text("Error opening .cappuccino.yml file", color.FgRed)
+		text("Error opening .cappuccino.yml file")
 		os.Exit(0)
 	}
 
-	text("File .cappuccino.yml detected", color.FgYellow)
+	text("File .cappuccino.yml detected")
 
 	if err := yaml.Unmarshal(content, &config); err != nil {
-		text(err.Error(), color.FgRed)
+		text(err.Error())
 		os.Exit(0)
 	}
 
@@ -168,7 +167,7 @@ func unmarshalConfig(href string) {
   thread safe executeCommand function.
 */
 func processConfig(config *Config) {
-	text("Starting execution of actions", color.FgYellow)
+	text("Starting execution of actions")
 	removeGitDirectory()
 
 	for i := 0; i < len(config.Actions); i++ {
@@ -177,7 +176,7 @@ func processConfig(config *Config) {
 }
 
 func processAction(action *Action) {
-	text(action.Name, color.FgGreen)
+	text(action.Name)
 
 	for j := 0; j < len(action.Content); j++ {
 		processContent(action, &action.Content[j])
@@ -202,7 +201,7 @@ func processContent(action *Action, content *ActionContent) {
 	case "exec":
 		command := content.Command
 		coloredContent := fmt.Sprintf("\t-> %s", command)
-		text(coloredContent, color.FgGreen)
+		text(coloredContent)
 
 		executableCommand := strings.Split(command, " ")
 		executeCommand(executableCommand[0], executableCommand[1:]...)
@@ -226,12 +225,12 @@ func processContent(action *Action, content *ActionContent) {
 			shownPath = "all files"
 		}
 
-		coloredName := colored(variable, color.FgCyan)
+		coloredName := variable
 		coloredContent := fmt.Sprintf("\t-> %s in %s", coloredName, shownPath)
-		text(coloredContent, color.FgGreen)
+		text(coloredContent)
 
 		if err := substituteFile(&path, &variable, &value, &indent); err != nil {
-			text(err.Error(), color.FgRed)
+			text(err.Error())
 			os.Exit(0)
 		}
 
@@ -246,13 +245,13 @@ func processContent(action *Action, content *ActionContent) {
 			destination = content.Path
 		}
 
-		coloredSource := colored(source, color.FgBlue)
-		coloredDestination := colored(destination, color.FgBlue)
+		coloredSource := source
+		coloredDestination := destination
 		coloredContent := fmt.Sprintf("\t-> %s -> %s", coloredSource, coloredDestination)
-		text(coloredContent, color.FgGreen)
+		text(coloredContent)
 
 		if err := copyFile(source, destination); err != nil {
-			text(err.Error(), color.FgRed)
+			text(err.Error())
 			os.Exit(0)
 		}
 
@@ -260,25 +259,25 @@ func processContent(action *Action, content *ActionContent) {
 		source := content.Source
 		destination := content.Destination
 
-		coloredSource := colored(source, color.FgMagenta)
-		coloredDestination := colored(destination, color.FgMagenta)
+		coloredSource := source
+		coloredDestination := destination
 		coloredContent := fmt.Sprintf("\t-> %s -> %s", coloredSource, coloredDestination)
-		text(coloredContent, color.FgGreen)
+		text(coloredContent)
 
 		if err := moveFile(source, destination); err != nil {
-			text(err.Error(), color.FgRed)
+			text(err.Error())
 			os.Exit(0)
 		}
 
 	case "delete":
 		path := content.Path
 
-		coloredSource := colored(path, color.FgRed)
+		coloredSource := path
 		coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
-		text(coloredContent, color.FgGreen)
+		text(coloredContent)
 
 		if err := deleteFile(path); err != nil {
-			text(err.Error(), color.FgRed)
+			text(err.Error())
 			os.Exit(0)
 		}
 	}
@@ -300,12 +299,12 @@ func executeCommand(command string, args ...string) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		text(stderr.String(), color.FgRed)
+		text(stderr.String())
 		os.Exit(0)
 	}
 
 	if out.String() != "" && false {
-		text(out.String(), color.FgGreen)
+		text(out.String())
 	}
 }
 
@@ -314,12 +313,12 @@ func executeCommand(command string, args ...string) {
   Removes the `.git` directory after clone, by default.
 */
 func removeGitDirectory() {
-	text("Removing existing .git folder", color.FgGreen)
+	text("Removing existing .git folder")
 	executeCommand("rm", "-rf", ".git")
 
-	coloredSource := colored("rm -rf .git", color.FgRed)
+	coloredSource := ("rm -rf .git")
 	coloredContent := fmt.Sprintf("\t-> %s", coloredSource)
-	text(coloredContent, color.FgGreen)
+	text(coloredContent)
 }
 
 /*
@@ -327,7 +326,7 @@ func removeGitDirectory() {
   Displays a welcome message and current version once libraries are ready.
 */
 func startEngine() {
-	text(fmt.Sprintf("Starting engine (%s)", VERSION), color.FgYellow)
+	text(fmt.Sprintf("Starting engine (%s)", VERSION))
 }
 
 /*
@@ -444,14 +443,14 @@ func substituteInPath(variable, value *string, indent *int) (err error) {
 	processWarnings
 */
 func processWarnings() {
-	text("Parsing repository for valuable information", color.FgYellow)
+	text("Parsing repository for valuable information")
 	filepath.Walk(".", func(filePath string, f os.FileInfo, err error) error {
 		if strings.Contains(filePath, ".cappuccino") {
 			return nil
 		}
 
 		if !f.IsDir() {
-			// text(fmt.Sprintf("\t-> %s", filePath), color.FgYellow, false)
+			// text(fmt.Sprintf("\t-> %s", filePath), false)
 			if err := processWarningInFile(&filePath); err != nil {
 
 			}
@@ -474,10 +473,9 @@ func processWarningInFile(path *string) (err error) {
 		if bytes.Contains(scanner.Bytes(), []byte("[cappuccino-warning]")) {
 			textContent := "\t-> Please make sure to setup needed information located %s in %s"
 			content := fmt.Sprintf(textContent,
-				colored(fmt.Sprintf("L-%03d", line), color.FgYellow),
-				colored(*path, color.FgYellow))
-
-			text(content, color.FgYellow)
+				(fmt.Sprintf("L-%03d", line)),
+				(*path))
+			text(content)
 		}
 
 		line++
@@ -517,49 +515,13 @@ func findRepoName(href string) string {
 */
 func displayVersion(config *Config) {
 	content := fmt.Sprintf("Detected version: %s", config.Version)
-	text(content, color.FgYellow)
-}
-
-/*
-  prefix
-  Displays a prefix to all engine related messages
-*/
-func prefix() string {
-	return fmt.Sprintf("Engine")
+	text(content)
 }
 
 /*
   text
   Displays a message on the screen using a particular color
 */
-func text(content string, attribute color.Attribute, returnOperator ...bool) {
-	returnLine := true
-	var printfContent string
-
-	if len(returnOperator) > 0 {
-		returnLine = returnOperator[0]
-	}
-
-	if returnLine {
-		printfContent = "%s %s\n"
-	} else {
-		printfContent = "\r%s %s"
-	}
-
-	fmt.Printf(printfContent, colored(prefix(), attribute), content)
-}
-
-/*
-  colored
-  Displays a message on the screen using a particular color
-*/
-func colored(text string, attribute color.Attribute) string {
-	return color.New(attribute).SprintFunc()(text)
-}
-
-/*
-	getMessage
-*/
-func getMessage(index int) string {
-	return "nothing"
+func text(content string) {
+	fmt.Println(content)
 }

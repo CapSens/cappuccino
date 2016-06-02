@@ -1,7 +1,0 @@
-0.1.2
-  - Display warnings of [cappuccino-warning] tag
-  - template type
-0.1.1
-  - Clones a valid git repository
-  - Unmarshal the config file
-  - Loops through and executes the list of defined actions

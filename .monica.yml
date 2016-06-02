@@ -1,0 +1,20 @@
+actions:
+  - name: push
+    desc: Commit changes to current branch
+    content:
+      - command: go build main.go
+      - command: git add -A
+      - command: git commit -m ${m}
+      - command: git push ${r} ${b}
+    default:
+      - m: no-commit-message
+      - r: origin
+      - b: master
+
+  - name: compile
+    desc: Compiling latest version for all plateforms
+    content:
+      - command: rm -rf dist/
+      - command: goxc -d=${dist} -pv=${pv}
+    default:
+      - dist: dist
